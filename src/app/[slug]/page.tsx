@@ -60,7 +60,7 @@ const Page = ({ params }: { params: { slug: string } }) => {
   const getDetailAnime = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`/api/anime/${params.slug}`);
+      const { data } = await axios.get(`https://backend.ryzendesu.vip/anime/${params.slug}`);
       setDetailAnime(data.data);
       setLists(data.data.links);
       localStorage.setItem('lists', JSON.stringify(data.data.links));
