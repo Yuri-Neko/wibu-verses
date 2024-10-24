@@ -26,7 +26,7 @@ const Page = ({ params }: { params: { episodeId: string } }) => {
   const getEpisode = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`/api/episode/${params.episodeId}`);
+      const { data } = await axios.get(`https://backend.ryzendesu.vip/episode/${params.episodeId}`);
       setEpisode(data.data);
     } catch (error: any) {
       console.log(error.message);
