@@ -4,7 +4,6 @@ import Loading from '@/components/Loading';
 import Link from 'next/link';
 import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
-import { DetailAnime } from '@/types/detailAnime';
 import { ListEpisodeContext } from '@/context/ListEpisodeCtx';
 
 const BookmarkButton = ({ slug }: { slug: string }) => {
@@ -18,7 +17,6 @@ const BookmarkButton = ({ slug }: { slug: string }) => {
     return null; // Render nothing on the server side
   }
 
-  // Check if the current page is bookmarked
   const isBookmarked = () => {
     if (typeof window !== 'undefined') {
       const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
@@ -35,7 +33,6 @@ const BookmarkButton = ({ slug }: { slug: string }) => {
         : [...bookmarks, slug];
 
       localStorage.setItem('bookmarks', JSON.stringify(updatedBookmarks));
-      // Memuat ulang halaman setelah perubahan bookmark
       window.location.reload();
     }
   };
@@ -53,7 +50,7 @@ const BookmarkButton = ({ slug }: { slug: string }) => {
 };
 
 const Page = ({ params }: { params: { slug: string } }) => {
-  const [detailAnime, setDetailAnime] = useState<DetailAnime>();
+  const [detailAnime, setDetailAnime] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const { setLists } = useContext(ListEpisodeContext);
 
@@ -62,8 +59,8 @@ const Page = ({ params }: { params: { slug: string } }) => {
     try {
       const { data } = await axios.get(`https://backend.ryzendesu.vip/anime/${params.slug}`);
       setDetailAnime(data.data);
-      setLists(data.data.links);
-      localStorage.setItem('lists', JSON.stringify(data.data.links));
+      setLists(data.data.episodes); // Assign episodes to the context
+      localStorage.setItem('lists', JSON.stringify(data.data.episodes)); // Save episodes to localStorage
     } catch (error: any) {
       console.log(error.message);
     } finally {
@@ -82,29 +79,41 @@ const Page = ({ params }: { params: { slug: string } }) => {
         {detailAnime ? (
           <Image
             className="rounded-md"
-            src={detailAnime?.thumbnail!}
+            src={detailAnime?.gambar}
             width={200}
             height={250}
-            alt={detailAnime?.title!}
+            alt={detailAnime?.judul}
           />
         ) : null}
       </div>
-      <h1 className="text-center my-2 text-lg">{detailAnime?.title}</h1>
+      <h1 className="text-center my-2 text-lg">{detailAnime?.judul}</h1>
       {/* Bookmark button */}
       <BookmarkButton slug={params.slug} />
-      <ul>
-        {detailAnime?.info.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
+      
+      {/* Display anime info */}
+      <ul className="my-4">
+        <li>{detailAnime?.nama}</li>
+        <li>{detailAnime?.namaJapan}</li>
+        <li>{detailAnime?.skor}</li>
+        <li>{detailAnime?.produser}</li>
+        <li>{detailAnime?.tipe}</li>
+        <li>{detailAnime?.status}</li>
+        <li>{detailAnime?.totalEpisode}</li>
+        <li>{detailAnime?.durasi}</li>
+        <li>{detailAnime?.rilis}</li>
+        <li>{detailAnime?.studio}</li>
+        <li>{detailAnime?.genre}</li>
       </ul>
+
+      {/* Display episodes */}
       {detailAnime ? <h3 className=" text-base mt-4">List Episode: </h3> : null}
       <ul className="flex flex-col gap-2">
-        {detailAnime?.links.map((item, index) => (
+        {detailAnime?.episodes.map((episode: any, index: number) => (
           <li className="clickAnimation-list" key={index}>
-            <Link href={`/nonton/${item.id}`}>
+            <Link href={`/nonton/${episode.slug}`}>
               <div className="bg-zinc-800 text-white text-sm p-2 overflow-hidden rounded-md">
-                <p className="truncate hover:whitespace-nowrap">{item.title}</p>
-                <p className="text-end text-xs mt-2">{item.release}</p>
+                <p className="truncate hover:whitespace-nowrap">{episode.judul}</p>
+                <p className="text-end text-xs mt-2">{episode.tanggal}</p>
               </div>
             </Link>
           </li>
